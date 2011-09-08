@@ -71,7 +71,7 @@ class interactive_session(session):
         khandler.simpleterm_bindings(transport)
 
         self.handler = handler.handler()
-        self.handler.chain_next(khandler).chain_self(ehandler, lhandler)
+        self.handler.chain_other(khandler).chain(ehandler, lhandler)
         self.networks = []
 
     def on_data(self, c):

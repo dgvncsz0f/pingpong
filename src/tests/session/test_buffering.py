@@ -35,3 +35,4 @@ class test_buffering(unittest.TestCase):
         h.do_handle("\r")
         self.assertEqual([], h.buffer)
         h.cc.assert_called_with("a")
+

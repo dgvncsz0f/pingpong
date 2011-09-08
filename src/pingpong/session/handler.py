@@ -32,11 +32,11 @@ class handler(object):
         self.handlers = []
         self.stop = False
 
-    def chain_self(self, *args):
+    def chain(self, *args):
         self.handlers.extend(args)
         return(self)
 
-    def chain_next(self, h):
+    def chain_other(self, h):
         self.handlers.append(h)
         return(h)
 
