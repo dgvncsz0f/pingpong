@@ -1,0 +1,29 @@
+* Ping Pong
+
+  Ping Pong is a library for quickly creating line-based interactive programs.
+
+** Motivation
+   
+   Making it easier to test applications that need to deal with interactive line-based session. For instance, automating network switches which provide no API but a interactive shell.
+
+** Dependencies
+
+*** Main library
+
+    * twisted
+    * twisted-conch
+
+*** Testing
+
+    * nose
+    * mock
+
+** Example
+
+   Examples are available in =src/conductor/samples=.
+
+** Testing
+
+   #+begin_example
+     $ make tests
+   #+end_example
