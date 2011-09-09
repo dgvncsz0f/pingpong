@@ -4,12 +4,15 @@
 
 ** Motivation
    
-   Making it easier to test applications that need to deal with interactive line-based session. For instance, automating network switches which provide no API but a interactive shell.
+   This has been created to provide a mechanism to test programs using =expect=. We are using it to create phony interfaces that although do nothing, provide the same interface as the real device. This allows us to test these applications easily.
+
+   Besides, special care has been taken to be able to use different protocols. Currently there is a /TTY/ and /SSH/ backends. The later makes use of =twisted=, so it should be fairly simple to add other protocols.
 
 ** Dependencies
 
 *** Main library
 
+    * python          [>= 2.6]
     * twisted
     * twisted-conch
 

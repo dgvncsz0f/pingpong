@@ -63,8 +63,8 @@ class keystroke(handler.handler):
 
     def _keystroke(self, c):
         self._cleanup()
-        self.kbuffer.insert(0, self._stamp(c))
-        self.kbuffer.pop()
+        self.kbuffer.append(self._stamp(c))
+        self.kbuffer = self.kbuffer[1:]
         event = filter(lambda x: x is not None, map(lambda e: e[0], self.kbuffer))
         return(tuple(event))
 

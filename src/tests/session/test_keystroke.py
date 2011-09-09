@@ -72,7 +72,7 @@ class test_keystroke(unittest.TestCase):
         k.bind(("a","b"), mock.Mock())
         k.do_handle("x")
         k._cleanup()
-        self.assertEqual("x", k.kbuffer[0][0])
+        self.assertEqual("x", k.kbuffer[-1][0])
 
     def test_stamp_uses_current_timestap(self):
         with h.mock_value(keystroke, "now") as mymock:
@@ -80,5 +80,25 @@ class test_keystroke(unittest.TestCase):
             k = keystroke.keystroke()
             self.assertEqual(("x","now"), k._stamp("x"))
 
-    # TODO:test_keystroke
-    # TODO:test_expire
+    def test_expire_returns_item_when_not_expired(self):
+        k = keystroke.keystroke(timeout = 100000000000000000)
+        self.assertEqual(("x", 0), k._expire(("x", 0)))
+
+    def test_expire_returns_NONE_0_when_expired(self):
+        k = keystroke.keystroke(timeout = -1)
+        self.assertEqual((None, 0), k._expire(("x", 0)))
+
+
+    def test_keystroke_returns_keys_combined(self):
+        k = keystroke.keystroke(timeout = 1000)
+        k.bind(("f","o","o"), mock.Mock())
+        self.assertEqual(("f",), k._keystroke("f"))
+        self.assertEqual(("f","o"), k._keystroke("o"))
+        self.assertEqual(("f","o","o"), k._keystroke("o"))
+
+    def test_keystroke_returns_keys_combined_that_are_not_expired(self):
+        k = keystroke.keystroke(timeout = -1)
+        k.bind(("f","o","o"), mock.Mock())
+        self.assertEqual(("f",), k._keystroke("f"))
+        self.assertEqual(("o",), k._keystroke("o"))
+        self.assertEqual(("o",), k._keystroke("o"))
