@@ -15,9 +15,9 @@ class test_tty_engine(unittest.TestCase):
         with h.mock_value(term.tty_engine, "_loop") as mymock:
             session = mock.Mock()
             term.tty_engine().run(lambda _: session)
-            session.on_begin.assert_called()
-            mymock[0].assert_called()
-            session.on_end.assert_called()
+            self.assertEqual(1, session.on_begin.call_count)
+            self.assertEqual(1, mymock[0].call_count)
+            self.assertEqual(1, session.on_end.call_count)
 
     def test__loop_turns_raw_mode_on(self):
         values = ["f"]
@@ -35,9 +35,9 @@ class test_tty_engine(unittest.TestCase):
             session = mock.Mock()
             term.tty_engine().run(lambda _: session)
 
-            mymock[1].assert_called()
-            mymock[2].assert_called()
-            mymock[3].assert_called()
+            self.assertEqual(1, mymock[1].call_count)
+            self.assertEqual(1, mymock[2].call_count)
+            self.assertEqual(1, mymock[3].call_count)
             session.on_data.assert_called_with("f")
 
     def test_run_uses_sys_transport(self):

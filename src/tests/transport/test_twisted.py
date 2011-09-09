@@ -18,4 +18,5 @@ class test_twisted_transport(unittest.TestCase):
         protocol = mock.Mock()
         t = twisted.twisted_transport(protocol)
         t.terminate()
-        protocol.transport.loseConnection.assert_called()
+        self.assertEqual(1, protocol.transport.loseConnection.call_count)
+        
