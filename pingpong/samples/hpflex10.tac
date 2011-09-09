@@ -26,15 +26,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from pingpong.engine import ssh
+from pingpong.samples import hpflex10
 
-bin_python = $(shell which python 2>/dev/null)
-bin_nose   = $(shell which nosetests 2>/dev/null)
-bin_env    = /usr/bin/env
-bin_find   = /usr/bin/find
-
-.PHONY: check_binaries
-check_binaries:
-	@if [ ! -x "$(bin_env)" ]; then echo "env binary [$(bin_env)] not found [bin_env variable]"; exit 1; fi
-	@if [ ! -x "$(bin_python)" ]; then echo "python binary [$(bin_python)] not found [bin_python variable]"; exit 1; fi
-	@if [ ! -x "$(bin_nose)" ]; then echo "nose binary [$(bin_nose)] not found [bin_nose variable]"; exit 1; fi
-	@if [ ! -x "$(bin_find)" ]; then echo "find binary ["$(bin_find)"] not found [bin_find variable]"; exit 1; fi
+engine = ssh.ssh_engine()
+application = engine.application(hpflex10.hpflex10_session)

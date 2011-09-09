@@ -27,14 +27,42 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-bin_python = $(shell which python 2>/dev/null)
-bin_nose   = $(shell which nosetests 2>/dev/null)
-bin_env    = /usr/bin/env
-bin_find   = /usr/bin/find
+import unittest
+import mock
+from pingpong.session import echo
 
-.PHONY: check_binaries
-check_binaries:
-	@if [ ! -x "$(bin_env)" ]; then echo "env binary [$(bin_env)] not found [bin_env variable]"; exit 1; fi
-	@if [ ! -x "$(bin_python)" ]; then echo "python binary [$(bin_python)] not found [bin_python variable]"; exit 1; fi
-	@if [ ! -x "$(bin_nose)" ]; then echo "nose binary [$(bin_nose)] not found [bin_nose variable]"; exit 1; fi
-	@if [ ! -x "$(bin_find)" ]; then echo "find binary ["$(bin_find)"] not found [bin_find variable]"; exit 1; fi
+class test_echo(unittest.TestCase):
+
+    def test_do_cancel(self):
+        t = mock.Mock()
+        h = echo.echo(t)
+        h.do_cancel()
+        self.assertEqual([(("^C",),{}), (("\r\n",),{})], t.write.call_args_list)
+
+    def test_do_unhandle(self):
+        t = mock.Mock()
+        h = echo.echo(t)
+        h.do_unhandle()
+        t.write.assert_called_with("\b \b")
+
+    def test_do_handle_echoes_char_back(self):
+        t = mock.Mock()
+        h = echo.echo(t)
+        h.do_handle("a")
+        t.write.assert_called_with("a")
+
+    def test_do_handle_echoes_newline_properly0(self):
+        t = mock.Mock()
+        h = echo.echo(t)
+        self.assertFalse(h.stop)
+        h.do_handle("\r")
+        t.write.assert_called_with("\r\n")
+        self.assertTrue(h.stop)
+
+    def test_do_handle_echoes_newline_properly1(self):
+        t = mock.Mock()
+        h = echo.echo(t)
+        self.assertFalse(h.stop)
+        h.do_handle("\n")
+        t.write.assert_called_with("\r\n")
+        self.assertTrue(h.stop)

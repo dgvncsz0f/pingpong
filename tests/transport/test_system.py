@@ -27,14 +27,20 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-bin_python = $(shell which python 2>/dev/null)
-bin_nose   = $(shell which nosetests 2>/dev/null)
-bin_env    = /usr/bin/env
-bin_find   = /usr/bin/find
+import sys
+import mock
+import unittest
+from pingpong.transport import system
+from tests import helper as h
 
-.PHONY: check_binaries
-check_binaries:
-	@if [ ! -x "$(bin_env)" ]; then echo "env binary [$(bin_env)] not found [bin_env variable]"; exit 1; fi
-	@if [ ! -x "$(bin_python)" ]; then echo "python binary [$(bin_python)] not found [bin_python variable]"; exit 1; fi
-	@if [ ! -x "$(bin_nose)" ]; then echo "nose binary [$(bin_nose)] not found [bin_nose variable]"; exit 1; fi
-	@if [ ! -x "$(bin_find)" ]; then echo "find binary ["$(bin_find)"] not found [bin_find variable]"; exit 1; fi
+class test_sys_transport(unittest.TestCase):
+
+    def test_write_uses_sys_stdout(self):
+        with h.mock_value(sys, "stdout") as mymock:
+            t = system.sys_transport()
+            t.write("foobar")
+            mymock[0].write.assert_called_with("foobar")
+
+    def test_terminate_raise_EOFError(self):
+        t = system.sys_transport()
+        self.assertRaises(EOFError, t.terminate)

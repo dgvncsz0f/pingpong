@@ -26,15 +26,39 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import unittest
+import mock
+from pingpong.session import buffering
 
-bin_python = $(shell which python 2>/dev/null)
-bin_nose   = $(shell which nosetests 2>/dev/null)
-bin_env    = /usr/bin/env
-bin_find   = /usr/bin/find
+class test_buffering(unittest.TestCase):
 
-.PHONY: check_binaries
-check_binaries:
-	@if [ ! -x "$(bin_env)" ]; then echo "env binary [$(bin_env)] not found [bin_env variable]"; exit 1; fi
-	@if [ ! -x "$(bin_python)" ]; then echo "python binary [$(bin_python)] not found [bin_python variable]"; exit 1; fi
-	@if [ ! -x "$(bin_nose)" ]; then echo "nose binary [$(bin_nose)] not found [bin_nose variable]"; exit 1; fi
-	@if [ ! -x "$(bin_find)" ]; then echo "find binary ["$(bin_find)"] not found [bin_find variable]"; exit 1; fi
+    def test_do_cancel(self):
+        h = buffering.buffering(mock.Mock(), mock.Mock())
+        h.do_cancel()
+        h.c_cc.assert_called_with()
+
+    def test_do_unhandle(self):
+        h = buffering.buffering(mock.Mock())
+        h.buffer = mock.Mock()
+        h.do_unhandle()
+        h.buffer.pop.assert_called_with()
+
+    def test_do_handle_buffers_character(self):
+        h = buffering.buffering(mock.Mock())
+        h.do_handle("a")
+        self.assertEqual(["a"], h.buffer)
+
+    def test_do_handle_flushes_buffer_on_newline0(self):
+        h = buffering.buffering(mock.Mock())
+        h.do_handle("a")
+        h.do_handle("\n")
+        self.assertEqual([], h.buffer)
+        h.cc.assert_called_with("a")
+
+    def test_do_handle_flushes_buffer_on_newline1(self):
+        h = buffering.buffering(mock.Mock())
+        h.do_handle("a")
+        h.do_handle("\r")
+        self.assertEqual([], h.buffer)
+        h.cc.assert_called_with("a")
+

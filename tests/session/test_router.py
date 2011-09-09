@@ -27,14 +27,37 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-bin_python = $(shell which python 2>/dev/null)
-bin_nose   = $(shell which nosetests 2>/dev/null)
-bin_env    = /usr/bin/env
-bin_find   = /usr/bin/find
+import unittest
+import mock
+from pingpong.session import router
 
-.PHONY: check_binaries
-check_binaries:
-	@if [ ! -x "$(bin_env)" ]; then echo "env binary [$(bin_env)] not found [bin_env variable]"; exit 1; fi
-	@if [ ! -x "$(bin_python)" ]; then echo "python binary [$(bin_python)] not found [bin_python variable]"; exit 1; fi
-	@if [ ! -x "$(bin_nose)" ]; then echo "nose binary [$(bin_nose)] not found [bin_nose variable]"; exit 1; fi
-	@if [ ! -x "$(bin_find)" ]; then echo "find binary ["$(bin_find)"] not found [bin_find variable]"; exit 1; fi
+class test_router(unittest.TestCase):
+
+    def test_init(self):
+        r = router.router("router", "default")
+        self.assertEqual("router", r.routes)
+        self.assertEqual("default", r.default)
+
+    def test_find_action_uses_routes_as_regexp(self):
+        r = router.router(((r"^foobar$", "success"),), "default")
+        self.assertEqual(("success",()), r.find_action("foobar"))
+
+    def test_find_action_uses_default_route(self):
+        r = router.router((), "default")
+        self.assertEqual(("default",()), r.find_action("foobar"))
+
+    def test_find_action_returns_matching_groups(self):
+        r = router.router(((r"^foo(bar)$", "success"),), "default")
+        self.assertEqual(("success", ("bar",)), r.find_action("foobar"))
+
+    def test_dispatch_gives_the_line_that_originated_the_event(self):
+        m = mock.Mock()
+        r = router.router((), m)
+        r.dispatch("foobar")
+        m.assert_called_with("foobar")
+
+    def test_dispatch_gives_the_line_that_originated_the_event_plus_the_matching_groups(self):
+        m = mock.Mock()
+        r = router.router(((r"^foo(bar)$", m),), "default")
+        r.dispatch("foobar")
+        m.assert_called_with("foobar", "bar")
