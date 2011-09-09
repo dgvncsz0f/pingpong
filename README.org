@@ -23,7 +23,56 @@
 
 ** Example
 
-   Examples are available in =src/conductor/samples=.
+   Examples are available in =src/conductor/samples=. Following, there is an example of a session that responds to ping commands:
+
+   #+begin_src python
+     # -*- coding: utf-8 -*-
+     
+     from pingpong.engine import term
+     from pingpong.engine import ssh
+     from pingpong import session
+     
+     class ping_session(session.interactive_session):
+     
+         def on_begin(self):
+             self._prompt()
+     
+         def on_end(self):
+             pass
+     
+         def on_abort(self):
+             self._endl()
+             self._prompt()
+     
+         def on_line(self, line):
+             """
+               This is the key. =interactive_session= invokes this method
+               everytime the peer sends a newline.
+             """
+             if (line == "ping"):
+                 self.transport.write("pong")
+             self._endl()
+             self._prompt()
+     
+         def _prompt(self):
+             self.transport.write("$ ")
+     
+         def _endl(self):
+             self.transport.write("\r\n")
+     
+     if (__name__ == "__main__"):
+         e = term.tty_engine()  # Uses the current terminal as th engine.
+         
+         # e = ssh.ssh_engine() # Anternatively you may use SSH protocol as
+                                # well. To test it, you may use:
+                                #   $ ssh -o UserKnownHostsFile=/dev/null -p 2222 root@localhost
+                                # When asked to enter the password, use `password'.
+                                #
+                                # N.B.: The -o flag is used because we
+                                #       create a new pair of RSA keys
+                                #       everytime.
+         e.run(ping_session)
+   #+end_src
 
 ** Testing
 
