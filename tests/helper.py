@@ -62,8 +62,8 @@ class ContextList(object):
         for ctx in self.contexts:
             ctx.__exit__(type, value, tb)
 
-    def __call__(self, *args, **kwargs):
-        return(self.at(0).__call__(*args, **kwargs))
+    def __call__(self, index):
+        return(self.at(index)())
 
     def at(self, index):
         return(self.contexts[index].value)
