@@ -79,3 +79,10 @@
    #+begin_example
      $ make tests
    #+end_example
+
+** Changelog
+
+   * Version 0.0.1
+     <2011-09-13 Tue 18:04>
+     
+     First version

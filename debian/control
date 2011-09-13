@@ -1,0 +1,12 @@
+Source: python-pingpong
+Maintainer: Diego Souza <dsouza+pingpong@bitforest.org>
+Section: python
+Priority: optional
+Build-Depends: cdbs, debhelper (>= 7.0.50~), python-setuptools
+Standards-Version: 3.9.1
+
+Package: python-pingpong
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: A library for quickly creating line-based interactive programs
+
