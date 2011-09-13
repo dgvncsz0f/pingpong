@@ -12,9 +12,7 @@
 
 *** Main library
 
-    * python          [>= 2.6]
-    * twisted
-    * twisted-conch
+    Refer to /setup.py/
 
 *** Testing
 
