@@ -17,6 +17,6 @@ setup( name             = "pingpong",
                             ),
                           ),
        install_requires = [ "twisted >= 11.0.0",
-                            "TwistedConch >= 11.0.0"
+                            "twisted-conch >= 11.0.0"
                           ]
      )
