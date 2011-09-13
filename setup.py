@@ -17,7 +17,6 @@ setup( name             = "pingpong",
                             ),
                           ),
        install_requires = [ "twisted >= 11.0.0",
-                            "twisted-conch >= 11.0.0",
                             "pycrypto >= 2.2"
                           ]
      )
