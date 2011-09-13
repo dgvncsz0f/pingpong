@@ -11,9 +11,10 @@ setup( name             = "pingpong",
        author_email     = "dsouza+pingpong@bitforest.org",
        description      = "A library for quickly creating line-based interactive programs",
        keywords         = "interactive line-based protocols",
-       data_files       = ( "/etc/pingpong", [ "pingpong/samples/ping.tac",
-                                               "pingpong/samples/hpflex10.tac"
-                                             ]
+       data_files       = ( ("/etc/pingpong", [ "pingpong/samples/ping.tac",
+                                                "pingpong/samples/hpflex10.tac"
+                                              ]
+                            ),
                           ),
        install_requires = [ "twisted >= 11.0.0",
                             "TwistedConch >= 11.0.0"
