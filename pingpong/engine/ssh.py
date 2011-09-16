@@ -53,7 +53,6 @@ from zope.interface import implements
 from pingpong import engine
 from pingpong.pycrypto import exportKey
 from pingpong.transport import twisted as ttransport
-from pingpong.transport import pipe as ptransport
 
 def rsa_keygen():
     def ssh_keygen(key):
