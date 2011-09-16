@@ -26,50 +26,42 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import time
-from pingpong.engine import term
-from pingpong.engine import ssh
-from pingpong import session
-from pingpong.session import handler
-from pingpong.session import buffering
-from pingpong.session import keystroke
-from pingpong.session import echo
-from pingpong.session import router
+import binascii
+from pingpong.pycrypto.asn1 import DerObject, DerSequence
 
-class ping_session(session.simple_session):
+# Note: You find this method on RSA.py on newer versions.
+#       We are inserting it here in order to support older pycrypto versions.
+def exportKey(rsaobj, format='PEM'):
+    """Export the RSA key. A string is returned
+    with the encoded public or the private half
+    under the selected format.
 
-    def on_begin(self, interactive):
-        if (interactive):
-            self._prompt()
+    format:		'DER' (PKCS#1) or 'PEM' (RFC1421)
+    """
+    der = DerSequence()
+    if rsaobj.has_private():
+        keyType = "RSA PRIVATE"
+        der[:] = [ 0, rsaobj.n, rsaobj.e, rsaobj.d, rsaobj.p, rsaobj.q,
+                   rsaobj.d % (rsaobj.p-1), rsaobj.d % (rsaobj.q-1),
+                   rsaobj.u ]
+    else:
+        keyType = "PUBLIC"
+        der.append('\x30\x0D\x06\x09\x2A\x86\x48\x86\xF7\x0D\x01\x01\x01\x05\x00')
+        bitmap = DerObject('BIT STRING')
+        derPK = DerSequence()
+        derPK[:] = [ rsaobj.n, rsaobj.e ]
+        bitmap.payload = '\x00' + derPK.encode()
+        der.append(bitmap.encode())
+    if format=='DER':
+        return der.encode()
+    if format=='PEM':
+        pem = "-----BEGIN %s KEY-----\n" % keyType
+        binaryKey = der.encode()
+        # Each BASE64 line can take up to 64 characters (=48 bytes of data)
+        chunks = [ binascii.b2a_base64(binaryKey[i:i+48]) for i in range(0, len(binaryKey), 48) ]
+        pem += ''.join(chunks)
+        pem += "-----END %s KEY-----" % keyType
+        return pem
+    return ValueError("")
 
-    def on_end(self):
-        pass
-
-    def on_abort(self):
-        self._endl()
-        self._prompt()
-
-    def on_line(self, line):
-        r = router.router(( (r"^ping$", self._pong),
-                          ), self._missing)
-        r.dispatch(line)
-        self._endl()
-        self._prompt()
-
-    def _missing(self, raw, *args):
-        self.transport.write(">> %s" % raw)
-
-    def _pong(self, raw, *args):
-        self.transport.write("pong")
-
-    def _prompt(self):
-        self.transport.write("$ ")
-
-    def _endl(self):
-        self.transport.write("\r\n")
-
-if (__name__ == "__main__"):
-    e = term.tty_engine()
-    # e = ssh.ssh_engine()
-    e.run(ping_session)
 

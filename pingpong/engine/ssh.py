@@ -51,6 +51,7 @@ from twisted.application import internet
 from twisted.python import components
 from zope.interface import implements
 from pingpong import engine
+from pingpong.pycrypto import exportKey
 from pingpong.transport import twisted as ttransport
 from pingpong.transport import pipe as ptransport
 
@@ -58,7 +59,7 @@ def rsa_keygen():
     def ssh_keygen(key):
         fd, tmpf = tempfile.mkstemp()
         try:
-            os.write(fd, key.exportKey())
+            os.write(fd, exportKey(key))
             os.fsync(fd)
             # TODO:figure_a_better_implementation
             args = ["/usr/bin/ssh-keygen", "-y", "-f", tmpf]
@@ -72,7 +73,7 @@ def rsa_keygen():
             os.unlink(tmpf)
             os.close(fd)
     privkey = RSA.generate(1024)
-    return(ssh_keygen(privkey), privkey.exportKey())
+    return(ssh_keygen(privkey), exportKey(privkey))
 
 class session_wrapper_protocol(protocol.Protocol):
 
