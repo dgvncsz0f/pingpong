@@ -45,9 +45,11 @@ class session(object):
         """
         self.transport = transport
     
-    def on_begin(self):
+    def on_begin(self, interactive=True):
         """
           Called once when application starts.
+
+          interactive: Usually true, but some protocols (like ssh) allows non-interactive session.
         """
 
     def on_end(self):
@@ -60,10 +62,10 @@ class session(object):
           Called everytime user sends a character user enters.
         """
 
-class interactive_session(session):
+class simple_session(session):
 
     def __init__(self, transport):
-        super(interactive_session, self).__init__(transport)
+        super(simple_session, self).__init__(transport)
         
         lhandler = buffering.buffering(self.on_line, self.on_abort)
         ehandler = echo.echo(transport)

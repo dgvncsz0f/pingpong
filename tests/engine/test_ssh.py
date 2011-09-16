@@ -26,50 +26,20 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import time
-from pingpong.engine import term
+import mock
+import unittest
 from pingpong.engine import ssh
-from pingpong import session
-from pingpong.session import handler
-from pingpong.session import buffering
-from pingpong.session import keystroke
-from pingpong.session import echo
-from pingpong.session import router
+from tests import helper as h
 
-class ping_session(session.simple_session):
+class TestPPAvatar(unittest.TestCase):
 
-    def on_begin(self, interactive):
-        if (interactive):
-            self._prompt()
-
-    def on_end(self):
-        pass
-
-    def on_abort(self):
-        self._endl()
-        self._prompt()
-
-    def on_line(self, line):
-        r = router.router(( (r"^ping$", self._pong),
-                          ), self._missing)
-        r.dispatch(line)
-        self._endl()
-        self._prompt()
-
-    def _missing(self, raw, *args):
-        self.transport.write(">> %s" % raw)
-
-    def _pong(self, raw, *args):
-        self.transport.write("pong")
-
-    def _prompt(self):
-        self.transport.write("$ ")
-
-    def _endl(self):
-        self.transport.write("\r\n")
-
-if (__name__ == "__main__"):
-    # e = term.tty_engine()
-    e = ssh.ssh_engine()
-    e.run(ping_session)
-
+    def test_execCommand_invokes_dataReceived_and_quits(self):
+        proto   = mock.Mock()
+        factory = mock.Mock()
+        session = mock.Mock()
+        factory.return_value = session
+        avatar = ssh.pp_avatar(username="pingpong", sfactory=factory)
+        avatar.execCommand(proto, "foobar")
+        self.assertEqual([((False,),{})], session.on_begin.call_args_list)
+        self.assertEqual(1, proto.loseConnection.call_count)
+        self.assertEqual(map(lambda c : ((c,),{}), "foobar"), session.on_data.call_args_list)

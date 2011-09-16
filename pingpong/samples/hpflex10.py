@@ -36,13 +36,15 @@ from pingpong.session import keystroke
 from pingpong.session import echo
 from pingpong.session import router
 
-class hpflex10_session(session.interactive_session):
+class hpflex10_session(session.simple_session):
 
     def __init__(self, transport, logger=[]):
         super(hpflex10_session, self).__init__(transport)
         self.logger = logger
 
-    def on_begin(self):
+    def on_begin(self, interactive):
+        if (not interactive):
+            raise("unsupported operation")
         self._greeting()
         self._endl()
         self._prompt()

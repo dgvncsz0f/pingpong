@@ -52,6 +52,7 @@ from twisted.python import components
 from zope.interface import implements
 from pingpong import engine
 from pingpong.transport import twisted as ttransport
+from pingpong.transport import pipe as ptransport
 
 def rsa_keygen():
     def ssh_keygen(key):
@@ -75,13 +76,14 @@ def rsa_keygen():
 
 class session_wrapper_protocol(protocol.Protocol):
 
-    def __init__(self, avatar):
-        stransport = ttransport.twisted_transport(self)
+    def __init__(self, avatar, interactive):
+        self.stransport = ttransport.twisted_transport(self)
+        self.interactive = interactive
         self.avatar = avatar
-        self.session = self.avatar.sfactory(stransport)
+        self.session = self.avatar.sfactory(self.stransport)
 
     def connectionMade(self):
-        self.session.on_begin()
+        self.session.on_begin(self.interactive)
 
     def connectionLost(self, reason):
         self.session.on_end()
@@ -98,16 +100,20 @@ class pp_avatar(avatar.ConchUser):
         self.sfactory = sfactory
         self.channelLookup.update({'session':session.SSHSession})
 
-    def openShell(self, trans):
-        p = session_wrapper_protocol(self)
-        p.makeConnection(trans)
-        trans.makeConnection(session.wrapProtocol(p))
+    def openShell(self, proto):
+        p = session_wrapper_protocol(self, True)
+        p.makeConnection(proto)
+        proto.makeConnection(session.wrapProtocol(p))
 
     def getPty(self, terminal, windowSize, attrs):
         pass
 
-    def execCommand(self, protocol, cmd):
-        raise(NotImplementedError())
+    def execCommand(self, proto, cmd):
+        p = session_wrapper_protocol(self, False)
+        p.makeConnection(proto)
+        proto.makeConnection(session.wrapProtocol(p))
+        p.dataReceived(cmd)
+        p.stransport.terminate()
 
     def eofReceived(self):
         pass

@@ -37,7 +37,7 @@ class tty_engine(engine.engine):
 
     def run(self, factory):
         session = factory(system.sys_transport())
-        session.on_begin()
+        session.on_begin(True)
         self._loop(session)
         session.on_end()
 
