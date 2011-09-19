@@ -42,4 +42,4 @@ class TestPPAvatar(unittest.TestCase):
         avatar.execCommand(proto, "foobar")
         self.assertEqual([((False,),{})], session.on_begin.call_args_list)
         self.assertEqual(1, proto.loseConnection.call_count)
-        self.assertEqual(map(lambda c : ((c,),{}), "foobar"), session.on_data.call_args_list)
+        self.assertEqual(map(lambda c : ((c,),{}), "foobar\n"), session.on_data.call_args_list)

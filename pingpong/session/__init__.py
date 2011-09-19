@@ -72,10 +72,13 @@ class simple_session(session):
         khandler = keystroke.keystroke()
         khandler.simpleterm_bindings(transport)
 
+        self.noecho = False
+        self.ehandler = ehandler
         self.handler = handler.handler()
         self.handler.chain_other(khandler).chain(ehandler, lhandler)
         self.networks = []
 
     def on_data(self, c):
+        self.ehandler.noecho = self.noecho
         self.handler.handle(c)
 

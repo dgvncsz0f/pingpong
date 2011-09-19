@@ -113,6 +113,8 @@ class pp_avatar(avatar.ConchUser):
         p.makeConnection(proto)
         proto.makeConnection(session.wrapProtocol(p))
         p.dataReceived(cmd)
+        if (not cmd.endswith("\n")):
+            p.dataReceived("\n")
         p.stransport.terminate()
 
     def eofReceived(self):

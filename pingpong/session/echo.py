@@ -33,15 +33,22 @@ class echo(handler.handler):
     def __init__(self, transport):
         super(echo, self).__init__()
         self.transport = transport
-
+        self.noecho    = False
+        
     def do_cancel(self):
+        if (self.noecho):
+            return
         self.transport.write("^C")
         self._endl()
 
     def do_unhandle(self):
+        if (self.noecho):
+            return
         self.transport.write("\b \b")
 
     def do_handle(self, c):
+        if (self.noecho):
+            return
         if (c in ["\r", "\n"]):
             self._endl()
             self.stop_propagation()

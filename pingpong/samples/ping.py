@@ -39,9 +39,10 @@ from pingpong.session import router
 class ping_session(session.simple_session):
 
     def on_begin(self, interactive):
-        if (interactive):
-            self._prompt()
-
+        self.interactive = interactive
+        self._prompt()
+        self.noecho = not interactive
+            
     def on_end(self):
         pass
 
@@ -63,13 +64,14 @@ class ping_session(session.simple_session):
         self.transport.write("pong")
 
     def _prompt(self):
-        self.transport.write("$ ")
+        if (self.interactive):
+            self.transport.write("$ ")
 
     def _endl(self):
         self.transport.write("\r\n")
 
 if (__name__ == "__main__"):
-    e = term.tty_engine()
-    # e = ssh.ssh_engine()
+    # e = term.tty_engine()
+    e = ssh.ssh_engine()
     e.run(ping_session)
 
